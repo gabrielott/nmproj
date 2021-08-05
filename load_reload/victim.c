@@ -1,14 +1,16 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
-#include "libbadhash.h"
+#include "libarray.h"
 
 int main(void) {
-	uint8_t bytes[] = {'f', 'l', 'a', 'g'};
+	int bytes[] = {12, 21, 34, 43};
 
-	for (;;) {
-		sleep(1);
-		int64_t hash = badhash(bytes, 4);
-		printf("%ld\n", hash);
+	uint8_t const *array = get_array();
+
+	for (int i = 0; i < 4; i++) {
+		printf("%hhu\n", array[bytes[i]]);
 	}
+
+	sleep(30);
 }

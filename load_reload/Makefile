@@ -2,15 +2,15 @@ CFLAGS = -L$(PWD) -Wall -Werror
 
 all: attacker.out victim.out
 
-attacker.out: attacker.c libbadhash.so
-	$(CC) $(CFLAGS) -o attacker.out attacker.c -lbadhash -lpthread
+attacker.out: attacker.c libarray.so
+	$(CC) $(CFLAGS) -o attacker.out attacker.c -larray -lpthread
 
-victim.out: victim.c libbadhash.so
-	$(CC) $(CFLAGS) -o victim.out victim.c -lbadhash
+victim.out: victim.c libarray.so
+	$(CC) $(CFLAGS) -o victim.out victim.c -larray
 
-libbadhash.so: libbadhash.c libbadhash.h
-	$(CC) $(CFLAGS) -c -fpic -o libbadhash.o libbadhash.c
-	$(CC) $(CFLAGS) -shared -o libbadhash.so libbadhash.o
+libarray.so: libarray.c libarray.h
+	$(CC) $(CFLAGS) -c -fpic -o libarray.o libarray.c
+	$(CC) $(CFLAGS) -shared -o libarray.so libarray.o
 
 .PHONY: run clean
 
@@ -22,4 +22,4 @@ run: attacker.out victim.out
 	@taskset --cpu-list 8 ./victim.out
 
 clean:
-	rm -f libbadhash.o libbadhash.so attacker.out victim.out
+	rm -f libarray.o libarray.so attacker.out victim.out
