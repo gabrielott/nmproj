@@ -12,5 +12,5 @@ int main(void) {
 		printf("%hhu\n", array[bytes[i]]);
 	}
 
-	sleep(30);
+	sleep(3);
 }

@@ -6,8 +6,9 @@
 #include <sched.h>
 #include "libarray.h"
 
-#define MAIN_CORE 1
-#define COUNTING_CORE 0
+/* These have to be different logical threads on the same physical core for some reason */
+#define MAIN_CORE 0
+#define COUNTING_CORE 8
 
 uint64_t volatile count = 0;
 
@@ -79,14 +80,16 @@ int main(void) {
 	for (int i = 0; i < SIZE; i++) {
 		uint64_t time = load_count((void *) (array + i));
 		avg += time;
+		printf("%d=%lu\n", i, time);
 	}
 
 	avg /= SIZE;
 	printf("Average: %lu\n", avg);
-	sleep(5);
+	sleep(3);
 
 	for (int i = 0; i < SIZE; i++) {
 		uint64_t time = load_count((void *) (array + i));
-		printf("%d -- %lu\n", i, time);
+		if (time > avg + 5)
+			printf("%d -- %lu\n", i, time);
 	}
 }
