@@ -1,28 +1,26 @@
-CFLAGS = -L$(PWD) -Wall -Werror
+CFLAGS = -Wall -Werror
 
-all: attacker.out victim.out
+all: attacker.out victim.out data
 
 asm: attacker.s victim.s
 
-attacker.out: attacker.c libarray.so
-	$(CC) $(CFLAGS) -o attacker.out attacker.c -larray -lpthread
+data:
+	dd if=/dev/random of=data bs=1M count=1 status=progress
 
-attacker.s: attacker.c libarray.so
-	$(CC) $(CFLAGS) -S -o attacker.s attacker.c -larray -lpthread
+attacker.out: attacker.c
+	$(CC) $(CFLAGS) -o attacker.out attacker.c -lpthread
 
-victim.out: victim.c libarray.so
-	$(CC) $(CFLAGS) -o victim.out victim.c -larray
+attacker.s: attacker.c
+	$(CC) $(CFLAGS) -S -o attacker.s attacker.c -lpthread
 
-victim.s: victim.c libarray.so
-	$(CC) $(CFLAGS) -S -o victim.s victim.c -larray
+victim.out: victim.c
+	$(CC) $(CFLAGS) -o victim.out victim.c
 
-libarray.so: libarray.c libarray.h
-	$(CC) $(CFLAGS) -c -fpic -o libarray.o libarray.c
-	$(CC) $(CFLAGS) -shared -o libarray.so libarray.o
+victim.s: victim.c
+	$(CC) $(CFLAGS) -S -o victim.s victim.c
 
 .PHONY: run clean
 
-run: export LD_LIBRARY_PATH = $(PWD)
 run: attacker.out victim.out
 	@echo '=ATTACKER='
 	@taskset --cpu-list 0 ./attacker.out &
@@ -30,4 +28,4 @@ run: attacker.out victim.out
 	@taskset --cpu-list 8 ./victim.out
 
 clean:
-	rm -f libarray.o libarray.so attacker.out attacker.s victim.out victim.s
+	rm -f attacker.out attacker.s victim.out victim.s data
