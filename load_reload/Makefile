@@ -8,16 +8,16 @@ data:
 	dd if=/dev/random of=data bs=1M count=1 status=progress
 
 attacker.out: attacker.c
-	$(CC) $(CFLAGS) -o attacker.out attacker.c -lpthread
+	$(CC) $(CFLAGS) -g -o attacker.out attacker.c -lpthread
 
 attacker.s: attacker.c
-	$(CC) $(CFLAGS) -S -o attacker.s attacker.c -lpthread
+	$(CC) $(CFLAGS) -g -S -o attacker.s attacker.c -lpthread
 
 victim.out: victim.c
-	$(CC) $(CFLAGS) -o victim.out victim.c
+	$(CC) $(CFLAGS) -g -o victim.out victim.c -lpthread
 
 victim.s: victim.c
-	$(CC) $(CFLAGS) -S -o victim.s victim.c
+	$(CC) $(CFLAGS) -g -S -o victim.s victim.c
 
 .PHONY: run clean
 
