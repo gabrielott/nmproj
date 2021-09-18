@@ -11,7 +11,7 @@
 #define MAIN_CORE 0
 #define COUNTING_CORE 8
 
-/* #define RDTSC */
+#define RDTSC
 
 uint64_t load_count(uint64_t *addr);
 
@@ -61,11 +61,11 @@ uint64_t load_count(uint64_t *addr) {
 		"lfence              \n\t"
 		"rdtsc               \n\t"
 		"lfence              \n\t"
-		"movq %%rax, %%rbx   \n\t"
+		"movl %%eax, %%ebx   \n\t"
 		"movq (%%rcx), %%rcx \n\t"
 		"lfence              \n\t"
 		"rdtsc               \n\t"
-		"subq %%rbx, %%rax   \n\t"
+		"subl %%ebx, %%eax   \n\t"
 		: "=a" (time)
 		: "c" (addr)
 		: "rbx"
