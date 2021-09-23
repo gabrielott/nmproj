@@ -7,16 +7,16 @@ asm: attacker.s victim.s
 data:
 	dd if=/dev/random of=data bs=1M count=1 status=progress
 
-attacker.out: attacker.c
+attacker.out: attacker.c util.h
 	$(CC) $(CFLAGS) -g -o attacker.out attacker.c -lpthread
 
-attacker.s: attacker.c
+attacker.s: attacker.c util.h
 	$(CC) $(CFLAGS) -g -S -o attacker.s attacker.c -lpthread
 
-victim.out: victim.c
+victim.out: victim.c util.h
 	$(CC) $(CFLAGS) -g -o victim.out victim.c -lpthread
 
-victim.s: victim.c
+victim.s: victim.c util.h
 	$(CC) $(CFLAGS) -g -S -o victim.s victim.c
 
 .PHONY: run clean
