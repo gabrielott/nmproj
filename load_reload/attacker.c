@@ -7,11 +7,10 @@
 #include <fcntl.h>
 #include "util.h"
 
-/* These have to be different logical threads on the same physical core for some reason */
 #define MAIN_CORE 0
-#define COUNTING_CORE 8
+#define COUNTING_CORE 1
 
-#define RDTSC
+/* #define RDTSC */
 
 uint64_t load_count(uint64_t *addr);
 
@@ -39,12 +38,12 @@ void *counting_thread(void *args) {
 uint64_t load_count(uint64_t *addr) {
 	uint64_t volatile time;
 	asm volatile (
-		"mfence               \n\t"
-		"lfence               \n\t"
+		/* "mfence               \n\t" */
+		/* "lfence               \n\t" */
 		"movq (%%rbx), %%rcx  \n\t"
-		"lfence               \n\t"
+		"mfence               \n\t"
 		"movq (%%rax), %%rax  \n\t"
-		"lfence               \n\t"
+		"mfence               \n\t"
 		"movq (%%rbx), %%rax  \n\t"
 		"subq %%rcx, %%rax    \n\t"
 		: "=a" (time)
@@ -85,14 +84,27 @@ int main(void) {
 	while (!count)
 		;
 #endif
-	
-	double sum = 0;
+
+	for (uint64_t i = 0; i < 10; i++)
+		for (uint64_t j = 0; j < 1e7; j++)
+			load_count(data + 1234);
+
+	double sum;
 	uint64_t samples;
 
-	for (samples = 0; samples < 1e7; samples++) {
-		uint64_t time = load_count(data + 1234);
-		sum += time;
-	}
+	double min = 1e10;
+	double max = 0;
 
-	printf("%lf\n", sum / samples);
+	for (sum = 0; ; sum = 0) {
+		for (samples = 0; samples < 1e7; samples++) {
+			uint64_t time = load_count(data + 1234);
+			sum += time;
+		}
+
+		double average = sum / samples;
+		min = (average < min) ? average : min;
+		max = (average > max) ? average : max;
+
+		printf("%0.2f\t%0.2f\t%0.2f\n", average, min, max);
+	}
 }
