@@ -5,7 +5,7 @@ all: attacker.out victim.out data
 asm: attacker.s victim.s
 
 data:
-	dd if=/dev/random of=data bs=1M count=1 status=progress
+	dd if=/dev/random of=data bs=1M count=8 status=progress
 
 attacker.out: attacker.c util.h
 	$(CC) $(CFLAGS) -g -o attacker.out attacker.c -lpthread

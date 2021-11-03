@@ -7,8 +7,8 @@
 #include <fcntl.h>
 #include "util.h"
 
-#define MAIN_CORE 0
-#define COUNTING_CORE 1
+#define MAIN_CORE 1
+#define COUNTING_CORE 2
 
 /* #define RDTSC */
 
@@ -38,18 +38,18 @@ void *counting_thread(void *args) {
 uint64_t load_count(uint64_t *addr) {
 	uint64_t volatile time;
 	asm volatile (
-		"mfence               \n\t"
-		"lfence               \n\t"
-		"movq (%%rbx), %%rcx  \n\t"
-		"lfence               \n\t"
-		"movq (%%rax), %%rax  \n\t"
-		"mfence               \n\t"
-		"lfence               \n\t"
-		"movq (%%rbx), %%rax  \n\t"
-		"subq %%rcx, %%rax    \n\t"
+		/* "mfence              \n\t" */
+		/* "lfence              \n\t" */
+		"movq (%%rbx), %%rcx \n\t"
+		"lfence              \n\t"
+		"movq (%%rax), %%rdx \n\t"
+		"lfence              \n\t"
+		"mfence              \n\t"
+		"movq (%%rbx), %%rax \n\t"
+		"subq %%rcx, %%rax   \n\t"
 		: "=a" (time)
 		: "a" (addr), "b" (&count)
-		: "rcx"
+		: "rcx", "rdx"
 	);
 	return time;
 }
@@ -82,30 +82,29 @@ int main(void) {
 #ifndef RDTSC
 	pthread_t thread;
 	pthread_create(&thread, NULL, counting_thread, NULL);
-	while (!count)
+	while (count < 1e7)
 		;
 #endif
 
-	for (uint64_t i = 0; i < 10; i++)
-		for (uint64_t j = 0; j < 1e7; j++)
-			load_count(data + 1234);
+	for (;;) {
+		uint8_t winner;
+		double largest = 0;
 
-	double sum;
-	uint64_t samples;
+		for (uint8_t byte = 0; byte < 0xff; byte++) {
+			double sum;
+			uint64_t samples;
+			for (samples = sum = 0; samples < 1e5; samples++) {
+				uint64_t time = load_count(&data[byte * 4096]);
+				sum += time;
+			}
 
-	double min = 1e10;
-	double max = 0;
-
-	for (sum = 0; ; sum = 0) {
-		for (samples = 0; samples < 1e7; samples++) {
-			uint64_t time = load_count(data + 1234);
-			sum += time;
+			double average = sum / samples;
+			if (average > largest) {
+				winner = byte;
+				largest = average;
+			}
 		}
 
-		double average = sum / samples;
-		min = (average < min) ? average : min;
-		max = (average > max) ? average : max;
-
-		printf("%0.2f\t%0.2f\t%0.2f\n", average, min, max);
+		printf("%c\n", winner);
 	}
 }
