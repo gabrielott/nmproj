@@ -1,10 +1,15 @@
-count    rdtsc    victim offset    attacker offset    samples
-============================================================
-85       yes      no victim        1234               1e7
-35       no       no victim        1234               1e7
+No victim:
+25
 
-103      yes      1234             1234               1e7
-96       yes      8000             1234               1e7
+Victim different address:
+35
 
-16.5     no       1234             1234               1e7
-16.8     no       8000             1234               1e7
+Victim same address:
+75
+
+======
+
+Victim different address:
+35
+
+Victim same address:

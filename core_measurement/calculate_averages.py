@@ -5,7 +5,7 @@ from subprocess import Popen, PIPE
 SAMPLES = 10
 
 for main in range(16):
-    averages = []
+    # averages = []
     for counting in range(16):
         time_sum = 0
 
@@ -15,6 +15,6 @@ for main in range(16):
             time_sum += int(out.decode("utf-8"))
 
         average = int(time_sum / SAMPLES)
-        averages.append(average)
-
-    print(*averages, sep="&", end="\\\\\n")
+        cross = ((main % 8) // 4) != ((counting % 8) // 4)
+        print(f"{main}x{counting} {average} {cross}")
+        # averages.append(average)

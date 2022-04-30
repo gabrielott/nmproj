@@ -38,8 +38,8 @@ void *counting_thread(void *args) {
 uint64_t load_count(uint64_t *addr) {
 	uint64_t volatile time;
 	asm volatile (
-		/* "mfence              \n\t" */
-		/* "lfence              \n\t" */
+		"mfence              \n\t"
+		"lfence              \n\t"
 		"movq (%%rbx), %%rcx \n\t"
 		"lfence              \n\t"
 		"movq (%%rax), %%rdx \n\t"
